@@ -1,4 +1,4 @@
-package com.ddam_a1.gestorrecordatorios.ui
+package com.ddam_a1.gestorrecordatorios.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
