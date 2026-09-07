@@ -2,10 +2,13 @@ package com.ddam_a1.gestorrecordatorios.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import com.ddam_a1.gestorrecordatorios.modelClasses.Recordatorio
 import java.time.LocalDateTime
 
-class RecordatoriosViewModel : ViewModel() {
+@HiltViewModel
+class RecordatoriosViewModel @Inject constructor() : ViewModel() {
 
     //===== ATRIBUTOS Y variables? ===== (para separar ok? Porque no le sé bien todavía)
 
