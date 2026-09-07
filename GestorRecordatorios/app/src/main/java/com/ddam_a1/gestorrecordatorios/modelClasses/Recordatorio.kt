@@ -10,8 +10,14 @@ data class Recordatorio(
     val enPapelera: Boolean = false,
     val fechaRecordatorio: LocalDateTime,
     val fechaEliminado: LocalDateTime? = null,
-    val fechaEliminarPermantente : LocalDateTime
 )
 
 // El ?: (Elvis Operator /gen) significa que revisa si hay un valor, si no, asigna uno.
 // Sirve para asignar cosas. Ej. val nombre ?: = "user anónimo".
+
+
+// Parece basura pero el val es por una razón ok?
+// Se supone que si actualizas un objeto nada más, los datos cambian
+// Pero creo que compose como que no le sabe y no actualiza la UI
+// Entonces va de borrar y crear objetos
+// Son ligeros, no pasa mucho creo :D
