@@ -9,7 +9,7 @@ import com.ddam_a1.gestorrecordatorios.ui.screens.Main
 import com.ddam_a1.gestorrecordatorios.ui.screens.Papelera
 
 @Composable
-fun NavHost() {
+fun RecordatoriosNavHost() {
     val navController = rememberNavController()
 
     NavHost(
