@@ -4,5 +4,5 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun Papelera() {
-    // Acá lo main main main
+    // Acá lo basura
 }

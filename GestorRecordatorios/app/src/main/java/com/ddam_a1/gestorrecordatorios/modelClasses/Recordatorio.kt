@@ -3,13 +3,21 @@ package com.ddam_a1.gestorrecordatorios.modelClasses
 import java.time.LocalDateTime
 import java.util.UUID
 
+// Definir los enums
+enum class nivelPrioridad {
+    NULA,
+    BAJA,
+    MEDIA,
+    ALTA
+}
 data class Recordatorio(
     val id: String = UUID.randomUUID().toString(),
     val titulo : String = "",
     val descripcion : String = "",
     val enPapelera: Boolean = false,
-    val fechaRecordatorio: LocalDateTime,
+    val fechaRecordatorio: LocalDateTime = LocalDateTime.now(),
     val fechaEliminado: LocalDateTime? = null,
+    val prioridad: nivelPrioridad
 )
 
 // El ?: (Elvis Operator /gen) significa que revisa si hay un valor, si no, asigna uno.
