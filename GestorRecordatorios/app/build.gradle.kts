@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
+    // Kotlin serialization plugin for type safe routes and navigation arguments
 }
 
 android {
@@ -55,4 +56,22 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    val nav_version = "2.9.8"
+
+    // Jetpack Compose integration
+    implementation("androidx.navigation:navigation-compose:$nav_version")
+
+    // Views/Fragments integration
+    implementation("androidx.navigation:navigation-fragment:$nav_version")
+    implementation("androidx.navigation:navigation-ui:$nav_version")
+
+    // Feature module support for Fragments
+    implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
+
+    // Testing Navigation
+    androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
+
+    // JSON serialization library, works with the Kotlin serialization plugin
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 }

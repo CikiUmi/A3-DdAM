@@ -1,4 +1,4 @@
-package com.example.compose
+package com.ddam_a1.gestorrecordatorios.ui.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -253,7 +253,7 @@ val unspecified_scheme = ColorFamily(
 )
 
 @Composable
-fun AppTheme(
+fun GestorRecordatoriosTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
@@ -271,7 +271,7 @@ fun AppTheme(
 
   MaterialTheme(
     colorScheme = colorScheme,
-    typography = AppTypography,
+    //typography = AppTypography,
     content = content
   )
 }
