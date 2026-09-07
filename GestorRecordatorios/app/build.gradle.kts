@@ -62,20 +62,13 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
-    val nav_version = "2.9.8"
-
-    // Jetpack Compose integration
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-
-    // Views/Fragments integration
-    implementation("androidx.navigation:navigation-fragment:$nav_version")
-    implementation("androidx.navigation:navigation-ui:$nav_version")
-
-    // Feature module support for Fragments
-    implementation("androidx.navigation:navigation-dynamic-features-fragment:$nav_version")
-
-    // Testing Navigation
-    androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
+    // Navegacion: la version vive en libs.versions.toml (navigationCompose).
+    // Antes estaba DOS veces (catalogo 2.4.10 + esta linea 2.9.8) y Gradle
+    // resolvia la mas alta en silencio. Ahora hay una sola fuente de verdad.
+    //
+    // Tambien se quitaron navigation-fragment, navigation-ui y
+    // navigation-dynamic-features-fragment: son para apps de Vistas y
+    // Fragments. Esta app es 100% Compose, no los usa.
 
     // JSON serialization library, works with the Kotlin serialization plugin
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")

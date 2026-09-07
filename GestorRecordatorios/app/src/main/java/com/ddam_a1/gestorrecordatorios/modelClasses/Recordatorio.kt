@@ -3,6 +3,19 @@ package com.ddam_a1.gestorrecordatorios.modelClasses
 import java.time.LocalDateTime
 import java.util.UUID
 
+/**
+ * Dias que un recordatorio vive en la papelera antes de borrarse solo.
+ *
+ * Vive AQUI, junto al modelo, porque lo usan dos lugares muy separados:
+ *   - `limpiarPapelera()` en el ViewModel, para decidir a quien tirar
+ *   - la tarjeta, para escribir "se elimina el 12/09/2026"
+ *
+ * Antes estaba escrito a mano en los dos. Si algun dia cambiabas uno y olvidabas
+ * el otro, la tarjeta prometeria una fecha y el ViewModel borraria en otra. Ese
+ * tipo de bug no truena: solo miente.
+ */
+const val DIAS_EN_PAPELERA = 5L
+
 // Definir los enums
 enum class nivelPrioridad {
     NULA,

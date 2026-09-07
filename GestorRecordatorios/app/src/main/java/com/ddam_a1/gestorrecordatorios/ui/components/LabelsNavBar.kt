@@ -116,7 +116,7 @@ fun EtiquetaNav(
  */
 @Composable
 fun RecordatoriosNavRailAbierto(
-    destinoActual: DestinoNav,
+    destinoActual: DestinoNav?,
     onDestino: (DestinoNav) -> Unit,
     onMenu: () -> Unit,
     onNuevo: () -> Unit,
