@@ -1,42 +1,67 @@
 package com.ddam_a1.gestorrecordatorios.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import com.ddam_a1.gestorrecordatorios.modelClasses.DIAS_EN_PAPELERA
 import com.ddam_a1.gestorrecordatorios.modelClasses.Recordatorio
 import java.time.LocalDateTime
 
-class RecordatoriosViewModel : ViewModel() {
+@HiltViewModel
+class RecordatoriosViewModel @Inject constructor() : ViewModel() {
 
     //===== ATRIBUTOS Y variables? ===== (para separar ok? Porque no le sé bien todavía)
 
     // Primero se define una lista para poder utilizar los métodos.
     // El viewModel la crea y no la mata si cambia la UI :D
 
-    // Y tmb se crea las lista para mandar a las interfaces.
+    // Y tmb se crean las listas para mandar a las interfaces.
 
     private val _recordatorios = mutableStateListOf<Recordatorio>()
     // por seguridad es private, para que no le estén moviendo
     // el _ es porque es buena práctica ponérselo cuando es privada
 
     val ListaRecordatorios: List<Recordatorio>
-        get() = _recordatorios.filter { it.enPapelera == false }
+        get() = _recordatorios
+            .filter { it.enPapelera == false }
+            .sortedBy { it.fechaRecordatorio }
         // El it es como un i en los loops, sirve para ir iterando
+
+    val ListaPapelera: List<Recordatorio>
+        get() = _recordatorios
+            .filter { it.enPapelera }
+            .sortedByDescending { it.fechaEliminado }
 
 
     //===== MÉTODOS ===== (para separar ok? Porque no le sé bien todavía)
 
     fun agregar(recordatorio: Recordatorio): Boolean {
         if (recordatorio.titulo.isBlank()){ //Blank tmb capta los " "
-            print("El recordatorio no puede tener un título vacío")
+            Log.d(TAG, "El recordatorio no puede tener un título vacío")
             return false
         }
         if (recordatorio.fechaRecordatorio.isBefore(LocalDateTime.now())){
-            print("El recordatorio no puede ser en el pasado")
+            Log.d(TAG, "El recordatorio no puede ser en el pasado")
             return false
         }
 
         _recordatorios.add(recordatorio)
-        print("Recoradtorio añadido !!")
+        Log.d(TAG, "Recoradtorio añadido !!")
+        return true
+    }
+
+    // Guarda los cambios de uno que YA existe.
+    // Se busca por id y se reemplaza completo: el objeto que llega del formulario
+    // ya trae el mismo id (salio de un .copy()), asi que conserva su identidad.
+    fun actualizar(recordatorio: Recordatorio): Boolean {
+        if (recordatorio.titulo.isBlank()) return false
+
+        val i = _recordatorios.indexOfFirst { it.id == recordatorio.id }
+        if (i < 0) return false
+
+        _recordatorios[i] = recordatorio
         return true
     }
 
@@ -46,24 +71,24 @@ class RecordatoriosViewModel : ViewModel() {
 
         // si no lo encuentra (no está después del 0) devuelve -1, entonces:
         if (i < 0){
-            print("El recordatorio no existe")
+            Log.d(TAG, "El recordatorio no existe")
             return false
         }
 
         // Lo que se hace acá es meterlo, lo copia tal cual pero cambia el valor de papelera
         _recordatorios[i] = _recordatorios[i].copy(enPapelera = true, fechaEliminado = LocalDateTime.now())
-        print("Recordatorio enviado a la papelera")
+        Log.d(TAG, "Recordatorio enviado a la papelera")
         return true
     }
 
     fun sacarPapelera(id: String) : Boolean {
         val i = _recordatorios.indexOfFirst { it.id == id }
         if (i < 0){
-            print("El recordatorio no existe")
+            Log.d(TAG, "El recordatorio no existe")
             return false
         }
         _recordatorios[i] = _recordatorios[i].copy(enPapelera = false,  fechaEliminado = null)
-        print("Recordatorio enviado a la bandeja de entrada")
+        Log.d(TAG, "Recordatorio enviado a la bandeja de entrada")
         return true
     }
 
@@ -89,6 +114,11 @@ class RecordatoriosViewModel : ViewModel() {
 
         // omg removeAll, tqm tqm
         // Otra vez el Elvis para evitar errores si no está definido, etc
-        _recordatorios.removeAll { it.fechaEliminado?.plusDays(5)?.isBefore(fechaActual) == true }
+        _recordatorios.removeAll { it.fechaEliminado?.plusDays(DIAS_EN_PAPELERA)?.isBefore(fechaActual) == true }
     }
 }
+
+// El TAG es la etiqueta con la que filtras en Logcat.
+// `print()` NO sirve en Android: no escribe en Logcat, se pierde. Por eso las
+// validaciones parecian mudas. Log.d si aparece, y se puede filtrar por TAG.
+private const val TAG = "RecordatoriosVM"
