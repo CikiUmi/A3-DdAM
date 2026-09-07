@@ -17,7 +17,7 @@ data class Recordatorio(
     val enPapelera: Boolean = false,
     val fechaRecordatorio: LocalDateTime = LocalDateTime.now(),
     val fechaEliminado: LocalDateTime? = null,
-    val prioridad: nivelPrioridad
+    val prioridad: nivelPrioridad = nivelPrioridad.NULA
 )
 
 // El ?: (Elvis Operator /gen) significa que revisa si hay un valor, si no, asigna uno.
