@@ -31,6 +31,19 @@ import androidx.compose.ui.unit.dp
 // ============================================================
 
 /**
+ * En cual de los tres tamanios estamos.
+ *
+ * Hasta ahora los margenes bastaban, pero la vista doble no es un cambio de
+ * espaciado: es OTRO layout. Y esa decision no la puede tomar la pantalla
+ * midiendo por su cuenta, porque entonces cada una podria contestar distinto.
+ * Viaja aqui, junto a los margenes, como parte de la misma respuesta.
+ *
+ * Esta es la diferencia entre "responsive" (lo mismo, estirado) y "adaptive"
+ * (una interfaz distinta que aprovecha el espacio). La vista doble es adaptive.
+ */
+enum class TamanoVentana { COMPACT, MEDIUM, EXPANDED }
+
+/**
  * El paquete de medidas de una pantalla.
  *
  * Es una `data class` y no seis parametros sueltos porque siempre viajan
@@ -38,6 +51,8 @@ import androidx.compose.ui.unit.dp
  * compact. Al ir en un solo objeto, no se pueden mezclar por accidente.
  */
 data class Margenes(
+    /** En cual de los tres tamanios estamos. */
+    val tamano: TamanoVentana,
     /** Margen izquierdo y derecho del contenido. */
     val lateral: Dp,
     /** Aire arriba del titulo (ya por debajo de la barra de estado). */
@@ -55,6 +70,7 @@ data class Margenes(
 )
 
 private val COMPACT = Margenes(
+    tamano = TamanoVentana.COMPACT,
     lateral = 20.dp,
     superior = 20.dp,        // y=44 en el Figma, menos los 24 de la barra de estado
     tituloALista = 16.dp,    // titulo termina en 92, lista empieza en 108
@@ -67,6 +83,7 @@ private val COMPACT = Margenes(
 )
 
 private val MEDIUM = Margenes(
+    tamano = TamanoVentana.MEDIUM,
     lateral = 32.dp,
     superior = 40.dp,
     tituloALista = 24.dp,    // titulo termina en 88, lista empieza en 112
@@ -77,16 +94,15 @@ private val MEDIUM = Margenes(
 )
 
 private val EXPANDED = Margenes(
+    tamano = TamanoVentana.EXPANDED,
     lateral = 60.dp,
     superior = 40.dp,
     tituloALista = 32.dp,    // titulo termina en 88, lista empieza en 120
     inferior = 32.dp,
     entreTarjetas = 20.dp,
-    // En tu Figma de tablet la lista mide 548 y al lado hay un segundo panel con
-    // el detalle. Ese layout de dos paneles no esta implementado; por ahora la
-    // lista se topa en 720 y se queda centrada para que el texto siga siendo
-    // legible en vez de cruzar toda la pantalla.
-    anchoMaximoLista = 720.dp,
+    // En expanded la lista NO se topa: comparte el ancho con el panel de
+    // detalle, y el reparto lo hacen los pesos de abajo.
+    anchoMaximoLista = Dp.Unspecified,
     anchoMaximoFormulario = 560.dp
 )
 
@@ -102,3 +118,20 @@ fun margenesPara(ancho: Dp): Margenes = when {
     ancho < 840.dp -> MEDIUM
     else -> EXPANDED
 }
+
+// ============================================================
+//  LA VISTA DOBLE (solo expanded)
+//
+//  En tu Figma de tablet (1280 x 800) el area de contenido mide 1156 y adentro:
+//     lista ....... 547.6   desde x=60
+//     hueco .......  32
+//     detalle ..... 456.4   termina en 1096, o sea 60 del borde
+//
+//  Estan como PESOS y no como anchos fijos a proposito: en una tablet mas
+//  grande, o con la app en media pantalla, 548 fijos dejarian un hueco feo a la
+//  derecha. Con pesos el reparto se mantiene en la misma proporcion.
+// ============================================================
+
+const val PESO_LISTA = 547.6f
+const val PESO_DETALLE = 456.4f
+val HUECO_PANELES = 32.dp

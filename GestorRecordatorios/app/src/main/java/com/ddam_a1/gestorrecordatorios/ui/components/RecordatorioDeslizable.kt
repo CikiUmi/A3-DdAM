@@ -62,7 +62,8 @@ fun RecordatorioDeslizable(
     onAccion: (String) -> Unit,
     modifier: Modifier = Modifier,
     estado: EstadoCard = EstadoCard.NORMAL,
-    onEditar: (() -> Unit)? = null
+    onEditar: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null
 ) {
     // El estado del gesto: cuánto se ha corrido, hacia dónde, si ya pasó el umbral.
     // Va en un `remember` (eso hace el `rememberSwipeToDismissBoxState`) porque
@@ -95,7 +96,8 @@ fun RecordatorioDeslizable(
         CardRecordatorio(
             recordatorio = recordatorio,
             estado = estado,
-            onEditar = onEditar
+            onEditar = onEditar,
+            onClick = onClick
         )
     }
 }
@@ -116,18 +118,6 @@ fun AnimacionEntrada(
     // por la lógica del viewModel los recordatorios se destruyen y vuelven a crear
     // la animación se activa al añadir nuevo a la lista, entonces serían mil veces con remember
     // rememberSaveable ya sabe que ya estaba guardado :DD
-
-    // OJO CON LOS PREVIEWS
-    //
-    // Un @Preview estatico NO ejecuta LaunchedEffect: dibuja un cuadro y ya, sin
-    // corrutinas. Entonces `visible` se quedaba en false para siempre, la
-    // opacidad en 0... y las tarjetas salian invisibles. La lista se veia vacia
-    // aunque los datos estuvieran ahi.
-    //
-    // `LocalInspectionMode` dice si estamos dentro del panel de previews. Si lo
-    // estamos, arrancamos ya visibles: en una foto no hay animacion que ver.
-    // En el emulador y en el Interactive Preview sigue arrancando en false y
-    // animando normal.
     val enPreview = LocalInspectionMode.current
 
     // es false porque está a la derecha primero, no se ve aún...

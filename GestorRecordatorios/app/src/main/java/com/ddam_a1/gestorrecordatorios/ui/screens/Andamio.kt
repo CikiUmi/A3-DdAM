@@ -222,3 +222,17 @@ private fun AndamioEditarMediumPreview() {
         }
     }
 }
+
+@Preview(name = "App - expanded (vista doble)", widthDp = 1280, heightDp = 800)
+@Composable
+private fun AndamioExpandedPreview() {
+    GestorRecordatoriosTheme {
+        Andamio(
+            destinoActual = DestinoNav.BANDEJA,
+            onDestino = {}, onNuevo = {},
+            railAbierto = false, onAlternarRail = {}
+        ) { m ->
+            Main(recordatoriosDeEjemplo(), m, onMoverAPapelera = {}, onEditar = {})
+        }
+    }
+}
