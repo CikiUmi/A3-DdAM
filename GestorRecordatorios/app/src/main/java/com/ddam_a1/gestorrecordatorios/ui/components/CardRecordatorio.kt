@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ddam_a1.gestorrecordatorios.R
+import com.ddam_a1.gestorrecordatorios.modelClasses.DIAS_EN_PAPELERA
 import com.ddam_a1.gestorrecordatorios.modelClasses.Recordatorio
 import com.ddam_a1.gestorrecordatorios.modelClasses.nivelPrioridad
 import com.ddam_a1.gestorrecordatorios.ui.theme.GestorRecordatoriosTheme
@@ -70,16 +71,6 @@ private val SEPARACION_TITULO_DESCRIPCION = 16.dp
  * subes o bajas este número hasta que se vea como tu diseño.
  */
 private val ELEVACION_TARJETA = 3.dp
-
-/**
- * Días que un recordatorio vive en la papelera antes de borrarse solo.
- * Tiene que coincidir con el número que usa `limpiarPapelera()` en tu ViewModel.
- *
- * (Idealmente esto viviría en UN solo lugar, por ejemplo como propiedad calculada
- * del modelo, para que no se puedan desincronizar. Lo dejo aquí para no tocarte
- * el modelo, pero si algún día los cambias, acuérdate de cambiar los dos.)
- */
-private const val DIAS_EN_PAPELERA = 5L
 
 /**
  * Los estados de la tarjeta, calcados de las variantes de Figma.
@@ -338,9 +329,9 @@ fun IndicadorPrioridad(
 
 @Composable
 private fun colorPrioridad(prioridad: nivelPrioridad): Color = when (prioridad) {
-    nivelPrioridad.ALTA -> MaterialTheme.colorScheme.error       // rojo
-    nivelPrioridad.MEDIA -> MaterialTheme.colorScheme.primary    // ámbar
-    nivelPrioridad.BAJA -> MaterialTheme.colorScheme.tertiary    // verde
+    nivelPrioridad.ALTA -> MaterialTheme.colorScheme.error                 // rojo
+    nivelPrioridad.MEDIA -> MaterialTheme.colorScheme.primaryContainer     // amarillito
+    nivelPrioridad.BAJA -> MaterialTheme.colorScheme.tertiary              // verde
     nivelPrioridad.NULA -> Color.Transparent
 }
 

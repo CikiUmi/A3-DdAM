@@ -73,9 +73,34 @@ private val SEPARACION_ENTRE_DESTINOS = 24.dp
 private val ELEVACION_RAIL = 8.dp
 private val ELEVACION_BARRA = 12.dp
 
-private val BARRA_ALTO = 88.dp
+// --- Barra inferior, medida sobre el Figma (NavBar 412 x 162) ---
+//   franja verde ................  66  (y 48..114)
+//   barra del sistema abajo .....  48  (y 114..162, 3 botones)
+//   lo que sobresale el boton ...  48  (y 0..48)
+//   centro del icono izquierdo ..  68   -> Frame 12, x 35..101
+//   centro del icono derecho .... 344   -> Frame 11, x 324..364
+//
+// Para que los centros caigan en 68 y 344 con dos pesos iguales, el hueco
+// central tiene que medir 140 y el padding lateral 0:
+//     caja = (412 - 140) / 2 = 136   ->   centro = 68  y  412-68 = 344
+private val BARRA_ALTO = 66.dp
 private val FAB_TAM = 64.dp
-private val MUESCA_TAM = 88.dp
+
+/** Hueco que se deja en medio de la barra. Es MEDIDA DE LAYOUT, no el circulo. */
+private val SEPARACION_CENTRAL = 140.dp
+
+/** El circulo del color del fondo que finge ser la mordida. */
+private val MUESCA_DIAMETRO = 96.dp
+
+/** Caja tactil de cada icono DENTRO de la barra inferior (66 en el Figma). */
+private val ITEM_TAM_BARRA = 66.dp
+
+/**
+ * Cuanto sobresale la barra por arriba del verde, para dejar sitio al boton.
+ * En el Figma son 48 (el NavBar mide 162 = 48 + 66 + 48 del sistema).
+ * Con esto el centro del boton cae justo sobre el filo del verde, como ahi.
+ */
+private val SALIENTE = 48.dp
 
 // ============================================================
 //  COLORES — sacados de tu Figma, midiendo los pixeles
@@ -116,7 +141,7 @@ private fun colorIndicador() =
  */
 @Composable
 fun RecordatoriosNavRail(
-    destinoActual: DestinoNav,
+    destinoActual: DestinoNav?,
     onDestino: (DestinoNav) -> Unit,
     onMenu: () -> Unit,
     onNuevo: () -> Unit,
@@ -178,14 +203,15 @@ internal fun ItemRail(
     descripcion: String,
     seleccionado: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tam: Dp = ITEM_TAM
 ) {
     val indicador = colorIndicador()
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .size(ITEM_TAM)                      // 72dp: muy por encima del mínimo táctil de 48
+            .size(tam)                           // 72 en el rail, 66 en la barra; los dos muy por encima del minimo tactil de 48
             .clip(RoundedCornerShape(ITEM_RADIO))
             .background(if (seleccionado) indicador else Color.Transparent)
             .clickable(role = Role.Tab, onClick = onClick)
@@ -239,7 +265,7 @@ private fun BotonAccion(onClick: () -> Unit, modifier: Modifier = Modifier) {
  */
 @Composable
 fun RecordatoriosBottomBar(
-    destinoActual: DestinoNav,
+    destinoActual: DestinoNav?,
     onDestino: (DestinoNav) -> Unit,
     onNuevo: () -> Unit,
     modifier: Modifier = Modifier,
@@ -253,7 +279,7 @@ fun RecordatoriosBottomBar(
         modifier = modifier
             .fillMaxWidth()
             // la barra + el hueco del sistema + lo que sobresale el botón
-            .height(BARRA_ALTO + insetInferior + FAB_TAM / 2)
+            .height(BARRA_ALTO + insetInferior + SALIENTE)
     ) {
         // ---- La barra verde, pegada abajo ----
         Row(
@@ -269,19 +295,19 @@ fun RecordatoriosBottomBar(
                 // físico de la pantalla y solo el CONTENIDO sube. Si lo pusieras
                 // al revés, quedaría una franja del color del fondo abajo.
                 .padding(bottom = insetInferior)
-                .padding(horizontal = 16.dp)
         ) {
             // Cada icono va centrado en su mitad, con el hueco de la muesca
             // en medio. Con `weight` todo se reparte solo: la barra funciona
             // igual en un teléfono angosto que en uno ancho.
             DestinoNav.entries.forEachIndexed { indice, destino ->
-                if (indice > 0) Spacer(Modifier.width(MUESCA_TAM))
+                if (indice > 0) Spacer(Modifier.width(SEPARACION_CENTRAL))
                 Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                     ItemRail(
                         icono = iconoDe(destino),
                         descripcion = etiquetaDe(destino),
                         seleccionado = destino == destinoActual,
-                        onClick = { onDestino(destino) }
+                        onClick = { onDestino(destino) },
+                        tam = ITEM_TAM_BARRA
                     )
                 }
             }
@@ -290,7 +316,7 @@ fun RecordatoriosBottomBar(
         // ---- El círculo de fondo que finge ser la muesca ----
         Box(
             modifier = Modifier
-                .size(MUESCA_TAM)
+                .size(MUESCA_DIAMETRO)
                 .clip(CircleShape)
                 .background(colorFondoPantalla)
         )
@@ -299,7 +325,7 @@ fun RecordatoriosBottomBar(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .offset(y = (MUESCA_TAM - FAB_TAM) / 2)
+                .offset(y = (MUESCA_DIAMETRO - FAB_TAM) / 2)
                 .size(FAB_TAM)
                 .shadow(6.dp, CircleShape)
                 .clip(CircleShape)
@@ -315,6 +341,20 @@ fun RecordatoriosBottomBar(
         }
     }
 }
+
+/**
+ * Alto TOTAL que ocupa la barra inferior, incluyendo el hueco del sistema y lo
+ * que sobresale el boton.
+ *
+ * Existe porque en el Figma la lista pasa POR DEBAJO de la barra (mira la ultima
+ * tarjeta del diseno de celular, que se ve cortada). Para que la ultima tarjeta
+ * se pueda terminar de leer al hacer scroll, la lista necesita saber cuanto
+ * espacio dejarle abajo. Este numero es esa respuesta.
+ */
+@Composable
+fun altoBarraInferior(
+    insetInferior: Dp = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+): Dp = BARRA_ALTO + insetInferior + SALIENTE
 
 // ============================================================
 //  Piezas compartidas

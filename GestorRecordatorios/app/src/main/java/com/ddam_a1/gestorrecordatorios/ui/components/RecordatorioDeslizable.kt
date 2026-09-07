@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ddam_a1.gestorrecordatorios.modelClasses.Recordatorio
@@ -81,6 +82,10 @@ fun RecordatorioDeslizable(
         backgroundContent = { FondoSwipe(accion) },
 
         // `onDismiss` se dispara cuando el gesto se completa.
+        // una función que agarra e parámetro, recibe un string
+        // con el id se hace eso de borrar o bandeja de entrada
+
+
         onDismiss = { direccion ->
             if (direccion == SwipeToDismissBoxValue.EndToStart) {
                 onAccion(recordatorio.id)
@@ -107,13 +112,26 @@ fun AnimacionEntrada(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    //rememberSaveable porque van a estar en el LazyColum
-    // por la lógica del viewModel se destruyen y vuelven a crear
-    // la animación se activa al añadir, entonces serían mil veces con remember
+    //rememberSaveable porque van a estar en el LazyColumn
+    // por la lógica del viewModel los recordatorios se destruyen y vuelven a crear
+    // la animación se activa al añadir nuevo a la lista, entonces serían mil veces con remember
     // rememberSaveable ya sabe que ya estaba guardado :DD
 
+    // OJO CON LOS PREVIEWS
+    //
+    // Un @Preview estatico NO ejecuta LaunchedEffect: dibuja un cuadro y ya, sin
+    // corrutinas. Entonces `visible` se quedaba en false para siempre, la
+    // opacidad en 0... y las tarjetas salian invisibles. La lista se veia vacia
+    // aunque los datos estuvieran ahi.
+    //
+    // `LocalInspectionMode` dice si estamos dentro del panel de previews. Si lo
+    // estamos, arrancamos ya visibles: en una foto no hay animacion que ver.
+    // En el emulador y en el Interactive Preview sigue arrancando en false y
+    // animando normal.
+    val enPreview = LocalInspectionMode.current
+
     // es false porque está a la derecha primero, no se ve aún...
-    var visible by rememberSaveable { mutableStateOf(false) }
+    var visible by rememberSaveable { mutableStateOf(enPreview) }
 
     LaunchedEffect(Unit) { visible = true }
 
