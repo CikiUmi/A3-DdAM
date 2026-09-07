@@ -15,15 +15,22 @@ class RecordatoriosViewModel @Inject constructor() : ViewModel() {
     // Primero se define una lista para poder utilizar los métodos.
     // El viewModel la crea y no la mata si cambia la UI :D
 
-    // Y tmb se crea las lista para mandar a las interfaces.
+    // Y tmb se crean las listas para mandar a las interfaces.
 
     private val _recordatorios = mutableStateListOf<Recordatorio>()
     // por seguridad es private, para que no le estén moviendo
     // el _ es porque es buena práctica ponérselo cuando es privada
 
     val ListaRecordatorios: List<Recordatorio>
-        get() = _recordatorios.filter { it.enPapelera == false }
+        get() = _recordatorios
+            .filter { it.enPapelera == false }
+            .sortedBy { it.fechaRecordatorio }
         // El it es como un i en los loops, sirve para ir iterando
+
+    val ListaPapelera: List<Recordatorio>
+        get() = _recordatorios
+            .filter { it.enPapelera }
+            .sortedByDescending { it.fechaEliminado }
 
 
     //===== MÉTODOS ===== (para separar ok? Porque no le sé bien todavía)
