@@ -8,7 +8,7 @@ data class Recordatorio(
     val titulo : String = "",
     val descripcion : String = "",
     val enPapelera: Boolean = false,
-    val fechaRecordatorio: LocalDateTime,
+    val fechaRecordatorio: LocalDateTime = LocalDateTime.now(),
     val fechaEliminado: LocalDateTime? = null,
 )
 
