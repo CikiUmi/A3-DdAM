@@ -148,11 +148,6 @@ fun AnimacionEntrada(
 // ============================================================
 //  DEMO PARA PROBAR EL GESTO
 //
-//  Un @Preview normal es una FOTO: no responde al dedo. Para deslizar de verdad
-//  usa el "Interactive Preview" (el icono del dedito, arriba a la derecha del
-//  preview). Ahi el preview se vuelve una mini-app y si acepta gestos.
-//
-//  Y para que se SIENTA real, la lista tiene que ser estado de verdad:
 //  `mutableStateListOf` en vez de `listOf`. Con una lista fija, la tarjeta se
 //  desliza... y se queda colgada fuera de pantalla, porque nadie la quito de
 //  los datos. Asi como esta, deslizar borra el dato y la fila desaparece sola,
