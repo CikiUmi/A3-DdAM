@@ -63,6 +63,16 @@ fun RecordatoriosNavHost(modifier: Modifier = Modifier) {
     var railAbierto by rememberSaveable { mutableStateOf(false) }
     val alternarRail = { railAbierto = !railAbierto }
 
+    // Cual recordatorio esta abierto en el panel de detalle de la tablet.
+    //
+    // Vive AQUI, igual que el rail, por la misma razon: la pantalla se vuelve a
+    // crear al navegar y perderia la seleccion. Y es `String?` (un id) y no un
+    // Recordatorio: guardar el objeto seria guardar una foto vieja, y ademas
+    // rememberSaveable solo sabe guardar cosas simples.
+    //
+    // En telefono nadie lo usa: alli tocar una tarjeta la despliega en su sitio.
+    var seleccionadoId by rememberSaveable { mutableStateOf<String?>(null) }
+
     // Ir a un destino de la barra. `popUpTo` evita que se apilen bandejas y
     // papeleras infinitas al ir y venir; `launchSingleTop` evita dos copias de
     // la misma pantalla si le picas dos veces al mismo icono.
@@ -96,7 +106,9 @@ fun RecordatoriosNavHost(modifier: Modifier = Modifier) {
                     recordatorios = vm.ListaRecordatorios,
                     margenes = margenes,
                     onMoverAPapelera = { id -> vm.meterPapelera(id) },
-                    onEditar = { id -> navController.navigate(rutaEditar(id)) }
+                    onEditar = { id -> navController.navigate(rutaEditar(id)) },
+                    seleccionadoId = seleccionadoId,
+                    onSeleccionar = { id -> seleccionadoId = id }
                 )
             }
         }

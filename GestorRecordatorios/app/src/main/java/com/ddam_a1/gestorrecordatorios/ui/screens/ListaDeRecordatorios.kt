@@ -49,9 +49,19 @@ fun ListaDeRecordatorios(
     onAccion: (String) -> Unit,
     mensajeVacio: String,
     modifier: Modifier = Modifier,
-    onEditar: ((String) -> Unit)? = null
+    onEditar: ((String) -> Unit)? = null,
+    // --- solo se usan en la vista doble de tablet ---
+    seleccionadoId: String? = null,
+    onSeleccionar: ((String) -> Unit)? = null,
+    // En la vista doble el titulo lo dibuja la pantalla, arriba de LOS DOS
+    // paneles, asi que la lista no debe dibujarlo otra vez.
+    mostrarTitulo: Boolean = true
 ) {
     Column(modifier.fillMaxSize()) {
+
+        if (mostrarTitulo) {
+            TituloPantalla(titulo, margenes)
+        }
 
         // ---- Encabezado ----
         // En tu Figma el titulo dice "Mis Recordatorios" en LAS DOS variantes,
@@ -62,20 +72,6 @@ fun ListaDeRecordatorios(
         //
         // Lleva el MISMO margen lateral que las tarjetas para que quede alineado
         // con ellas; si tuviera el suyo se veria desfasado.
-        Text(
-            text = titulo,
-            // displaySmall = la serif (Averia) grande. En el Figma mide 48 de
-            // alto y va en el cafe de `primary`, no en el color de texto normal.
-            style = MaterialTheme.typography.displaySmall,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .widthIn(max = margenes.anchoMaximoLista)
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally)
-                .padding(horizontal = margenes.lateral)
-                .padding(top = margenes.superior, bottom = margenes.tituloALista)
-        )
-
         if (recordatorios.isEmpty()) {
             // ---- Estado vacio ----
             // Una lista vacia NUNCA debe ser una pantalla en blanco: el usuario no
@@ -114,21 +110,58 @@ fun ListaDeRecordatorios(
             verticalArrangement = Arrangement.spacedBy(margenes.entreTarjetas)
         ) {
             items(recordatorios, key = { it.id }) { recordatorio ->
+                // La tarjeta abierta en el panel de al lado se pinta con tu
+                // variante SELECCIONADO (el verde de tu Figma). Ese estado
+                // llevaba semanas programado sin usarse: era justo para esto.
+                val estaSeleccionada =
+                    seleccionadoId != null && recordatorio.id == seleccionadoId
+
                 AnimacionEntrada {
                     RecordatorioDeslizable(
                         recordatorio = recordatorio,
                         accion = accion,
-                        estado = estadoCard,
+                        estado = if (estaSeleccionada) EstadoCard.SELECCIONADO else estadoCard,
                         onAccion = onAccion,
                         // Si la pantalla no da onEditar (la papelera no lo da),
                         // la tarjeta no muestra el boton. Un boton que no lleva
                         // a ningun lado es peor que no tener boton.
-                        onEditar = onEditar?.let { editar -> { editar(recordatorio.id) } }
+                        onEditar = onEditar?.let { editar -> { editar(recordatorio.id) } },
+                        // Si hay panel de detalle, tocar SELECCIONA en vez de
+                        // desplegar. Si no lo hay (telefono), va null y la
+                        // tarjeta se sigue plegando ella sola como siempre.
+                        onClick = onSeleccionar?.let { sel -> { sel(recordatorio.id) } }
                     )
                 }
             }
         }
     }
+}
+
+/**
+ * El titulo de la pantalla.
+ *
+ * Vive aparte porque lo usan dos layouts distintos: la lista sola (telefono) y
+ * la vista doble (tablet), donde va arriba de los dos paneles. Copiarlo en los
+ * dos habria significado que un cambio de estilo se hiciera en dos lados.
+ */
+@Composable
+fun TituloPantalla(
+    texto: String,
+    margenes: Margenes,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = texto,
+        // displaySmall = la serif (Averia) grande. En el Figma mide 48 de alto y
+        // va en el cafe de `primary`, no en el color de texto normal.
+        style = MaterialTheme.typography.displaySmall,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+            .widthIn(max = margenes.anchoMaximoLista)
+            .fillMaxWidth()
+            .padding(horizontal = margenes.lateral)
+            .padding(top = margenes.superior, bottom = margenes.tituloALista)
+    )
 }
 
 // ============================================================

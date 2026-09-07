@@ -58,9 +58,9 @@ import java.util.Locale
 //    - 16 de separación entre el título y la descripción
 // ============================================================
 
-private val RADIO_TARJETA = 20.dp
-private val PADDING_TARJETA = 24.dp
-private val SEPARACION_TITULO_DESCRIPCION = 16.dp
+internal val RADIO_TARJETA = 20.dp
+internal val PADDING_TARJETA = 24.dp
+internal val SEPARACION_TITULO_DESCRIPCION = 16.dp
 
 /**
  * Sombra de la tarjeta.
@@ -70,7 +70,7 @@ private val SEPARACION_TITULO_DESCRIPCION = 16.dp
  * con su propio modelo de luz. Por eso una sombra de Figma no se traduce, se APROXIMA:
  * subes o bajas este número hasta que se vea como tu diseño.
  */
-private val ELEVACION_TARJETA = 3.dp
+internal val ELEVACION_TARJETA = 3.dp
 
 /**
  * Los estados de la tarjeta, calcados de las variantes de Figma.
@@ -98,14 +98,25 @@ enum class EstadoCard { NORMAL, SELECCIONADO, EN_PAPELERA }
  * @param recordatorio los datos que se van a mostrar
  * @param estado cuál de las variantes de se dibuja (papelera, desplegado, seleccionado, etc)
  * @param onEditar si le pasas algo, aparece un botón "Editar" al desplegarse
+ * @param onClick si le pasas algo, tocar la tarjeta hace ESO en vez de plegarla.
+ *        Sirve para la vista doble de tablet: ahí tocar una tarjeta la SELECCIONA
+ *        y el detalle se ve en el panel de al lado, así que la tarjeta ya no
+ *        necesita desplegarse ni mostrar su flecha. Una tarjeta que delega su
+ *        click no administra su propio desplegado, y por eso tampoco dibuja el
+ *        control de desplegarse: un botón que no hace nada confunde más que
+ *        ayudar.
  */
 @Composable
 fun CardRecordatorio(
     recordatorio: Recordatorio,
     modifier: Modifier = Modifier,
     estado: EstadoCard = EstadoCard.NORMAL,
-    onEditar: (() -> Unit)? = null
+    onEditar: (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null
 ) {
+    // Si alguien más se encarga del click, esta tarjeta nunca se despliega sola.
+    val sePliega = onClick == null
+
     var expandida by remember { mutableStateOf(false) }
 
     // La flecha gira 180° al desplegarse. `animateFloatAsState` hace la transiciónn con esto:
@@ -123,7 +134,7 @@ fun CardRecordatorio(
         elevation = CardDefaults.cardElevation(defaultElevation = ELEVACION_TARJETA),
         modifier = modifier
             .fillMaxWidth()
-            .clickable { expandida = !expandida }
+            .clickable { if (sePliega) expandida = !expandida else onClick!!() }
             .animateContentSize()
     ) {
         Column(modifier = Modifier.padding(PADDING_TARJETA)) {
@@ -190,17 +201,19 @@ fun CardRecordatorio(
                     TextButton(onClick = onEditar) { Text("Editar", color = colorTexto) }
                 }
 
-                IconButton(onClick = { expandida = !expandida }) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_expand),
-                        // Describe lo que VA A PASAR, y cambia con el estado.
-                        contentDescription = if (expandida) "Contraer recordatorio"
-                        else "Expandir recordatorio",
-                        tint = colorTexto,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .rotate(rotacionFlecha)
-                    )
+                if (sePliega) {
+                    IconButton(onClick = { expandida = !expandida }) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_expand),
+                            // Describe lo que VA A PASAR, y cambia con el estado.
+                            contentDescription = if (expandida) "Contraer recordatorio"
+                            else "Expandir recordatorio",
+                            tint = colorTexto,
+                            modifier = Modifier
+                                .size(24.dp)
+                                .rotate(rotacionFlecha)
+                        )
+                    }
                 }
             }
         }
@@ -213,20 +226,20 @@ fun CardRecordatorio(
 // ============================================================
 
 @Composable
-private fun colorFondoDe(estado: EstadoCard): Color = when (estado) {
+internal fun colorFondoDe(estado: EstadoCard): Color = when (estado) {
     EstadoCard.NORMAL -> MaterialTheme.colorScheme.surface                 // crema #FFF8F3
     EstadoCard.SELECCIONADO -> MaterialTheme.colorScheme.tertiaryContainer // verde claro
     EstadoCard.EN_PAPELERA -> MaterialTheme.colorScheme.surfaceDim         // beige apagado
 }
 
 @Composable
-private fun colorTextoDe(estado: EstadoCard): Color = when (estado) {
+internal fun colorTextoDe(estado: EstadoCard): Color = when (estado) {
     EstadoCard.SELECCIONADO -> MaterialTheme.colorScheme.onTertiaryContainer
     else -> MaterialTheme.colorScheme.onSurface
 }
 
 @Composable
-private fun colorSecundarioDe(estado: EstadoCard): Color = when (estado) {
+internal fun colorSecundarioDe(estado: EstadoCard): Color = when (estado) {
     EstadoCard.SELECCIONADO -> MaterialTheme.colorScheme.onTertiaryContainer
     else -> MaterialTheme.colorScheme.onSurfaceVariant
 }
@@ -349,7 +362,7 @@ private fun descripcionPrioridad(prioridad: nivelPrioridad): String = when (prio
 // ============================================================
 
 /** Texto relativo: "hace 2 h", "en 3 d". */
-private fun hace(momento: LocalDateTime): String {
+internal fun hace(momento: LocalDateTime): String {
     val minutos = ChronoUnit.MINUTES.between(momento, LocalDateTime.now())
     val futuro = minutos < 0
     val abs = kotlin.math.abs(minutos)
@@ -366,7 +379,7 @@ private fun hace(momento: LocalDateTime): String {
 private val FORMATO_LARGO = DateTimeFormatter.ofPattern("d 'de' MMMM, HH:mm", Locale("es", "MX"))
 private val FORMATO_CORTO = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale("es", "MX"))
 
-private fun formatoLargo(momento: LocalDateTime): String = momento.format(FORMATO_LARGO)
+internal fun formatoLargo(momento: LocalDateTime): String = momento.format(FORMATO_LARGO)
 
 /**
  * "se elimina el 12/09/2026", que es lo que dice en la papelera.
@@ -375,7 +388,7 @@ private fun formatoLargo(momento: LocalDateTime): String = momento.format(FORMAT
  * de eliminación. No debería pasar, pero si pasa, mejor un texto honesto que
  * una app cerrada.
  */
-private fun textoEliminacion(fechaEliminado: LocalDateTime?): String =
+internal fun textoEliminacion(fechaEliminado: LocalDateTime?): String =
     fechaEliminado
         ?.plusDays(DIAS_EN_PAPELERA)
         ?.format(FORMATO_CORTO)
