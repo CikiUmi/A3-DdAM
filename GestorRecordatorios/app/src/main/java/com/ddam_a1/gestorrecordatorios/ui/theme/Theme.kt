@@ -1,4 +1,4 @@
-package com.ddam_a1.gestorrecordatorios.ui.theme
+package com.example.compose
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -271,7 +271,7 @@ fun GestorRecordatoriosTheme(
 
   MaterialTheme(
     colorScheme = colorScheme,
-    //typography = AppTypography,
+    typography = AppTypography,
     content = content
   )
 }
