@@ -49,7 +49,7 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 // ============================================================
-//  MEDIDAS — tomadas de tu Figma (componente "Card Recordatorios")
+//  MEDIDAS — tomadas de Figma (componente "Card Recordatorios")
 //
 //  En el Figma la tarjeta mide 800x151 con estos valores internos:
 //    - padding de 24 por todos lados
@@ -64,8 +64,8 @@ private val SEPARACION_TITULO_DESCRIPCION = 16.dp
 /**
  * Sombra de la tarjeta.
  *
- * OJO: en Figma una sombra se define con cuatro valores (x, y, desenfoque, color).
- * En Compose NO: le das UN solo número, la "elevación", y Android calcula la sombra
+ * En Figma una sombra se define con cuatro valores (x, y, desenfoque, color).
+ * En Compose le das UN solo número, la "elevación", y Android calcula la sombra
  * con su propio modelo de luz. Por eso una sombra de Figma no se traduce, se APROXIMA:
  * subes o bajas este número hasta que se vea como tu diseño.
  */
@@ -82,7 +82,7 @@ private val ELEVACION_TARJETA = 3.dp
 private const val DIAS_EN_PAPELERA = 5L
 
 /**
- * Los estados de la tarjeta, calcados de las variantes de tu Figma.
+ * Los estados de la tarjeta, calcados de las variantes de Figma.
  *
  * Es un `enum` y no varios booleanos sueltos (¿`seleccionado` + `enPapelera`?)
  * porque los estados son EXCLUYENTES: una tarjeta no puede estar seleccionada
@@ -105,7 +105,7 @@ enum class EstadoCard { NORMAL, SELECCIONADO, EN_PAPELERA }
  * 3. `Modifier.animateContentSize()` anima el plegado solo, sin programar nada.
  *
  * @param recordatorio los datos que se van a mostrar
- * @param estado cuál de las variantes de tu Figma se dibuja
+ * @param estado cuál de las variantes de se dibuja (papelera, desplegado, seleccionado, etc)
  * @param onEditar si le pasas algo, aparece un botón "Editar" al desplegarse
  */
 @Composable
@@ -117,8 +117,7 @@ fun CardRecordatorio(
 ) {
     var expandida by remember { mutableStateOf(false) }
 
-    // La flecha gira 180° al desplegarse. `animateFloatAsState` hace la transición
-    // sola: por eso basta UN icono en vez de dos — no cambiamos el dibujo, lo giramos.
+    // La flecha gira 180° al desplegarse. `animateFloatAsState` hace la transiciónn con esto:
     val rotacionFlecha by animateFloatAsState(
         targetValue = if (expandida) 180f else 0f,
         label = "rotacionFlecha"
@@ -155,7 +154,7 @@ fun CardRecordatorio(
                 textAlign = TextAlign.End
             )
 
-            // Sin separador aquí: en tu Figma la fecha y el título van pegados,
+            // Sin separador aquí: la fecha y el título van pegados,
             // porque son un mismo bloque de información.
 
             // ---- Prioridad + título ----
@@ -172,8 +171,7 @@ fun CardRecordatorio(
 
             // ---- Descripción ----
             // Plegada: 2 líneas con "...". Desplegada: completa.
-            // `maxLines` + `Ellipsis` es lo que evita que el texto se salga,
-            // que era el bug que tenías en Figma con la altura fija.
+            // `maxLines` + `Ellipsis` es lo que evita que el texto se salga.
             Text(
                 text = recordatorio.descripcion,
                 style = MaterialTheme.typography.bodyMedium,
@@ -220,8 +218,7 @@ fun CardRecordatorio(
 
 // ============================================================
 //  Colores por estado
-//  Cada variante de tu Figma mapeada a un rol de tu tema.
-//  Ninguno está escrito a mano: si cambias la paleta, esto sigue funcionando.
+//  Cada variante mapeada a un rol del tema.
 // ============================================================
 
 @Composable
@@ -247,7 +244,7 @@ private fun colorSecundarioDe(estado: EstadoCard): Color = when (estado) {
 //  Fondos de swipe
 //  Lo que se ve DETRÁS de la tarjeta cuando la deslizas.
 //
-//  Acuérdate del patrón: la tarjeta no se encoge, se DESLIZA. Este bloque
+//  La tarjeta no se encoge, se DESLIZA. Este bloque
 //  está debajo todo el tiempo y se va descubriendo conforme la tarjeta se corre.
 // ============================================================
 
@@ -319,8 +316,9 @@ fun FondoSwipe(
  *
  * 2. El `contentDescription` dice "Prioridad alta" en palabras, y es OBLIGATORIO:
  *    si la única señal fuera el color, alguien con daltonismo o usando TalkBack
- *    no se enteraría. Nunca comuniques algo solo con color.
+ *    no se enteraría.
  */
+
 @Composable
 fun IndicadorPrioridad(
     prioridad: nivelPrioridad,
@@ -356,7 +354,7 @@ private fun descripcionPrioridad(prioridad: nivelPrioridad): String = when (prio
 // ============================================================
 //  Ayudantes de fecha
 //  `private` porque solo los usa esta tarjeta. Si otra pantalla los necesita,
-//  muévelos a ui/Fechas.kt y quítales el private.
+//  se pueden mover a un archivo en ui y quítarles el private.
 // ============================================================
 
 /** Texto relativo: "hace 2 h", "en 3 d". */
@@ -380,7 +378,7 @@ private val FORMATO_CORTO = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale("es
 private fun formatoLargo(momento: LocalDateTime): String = momento.format(FORMATO_LARGO)
 
 /**
- * "se elimina el 12/09/2026", que es lo que dice tu Figma en la papelera.
+ * "se elimina el 12/09/2026", que es lo que dice en la papelera.
  *
  * El `?:` (Elvis) cubre el caso raro de un recordatorio en la papelera SIN fecha
  * de eliminación. No debería pasar, pero si pasa, mejor un texto honesto que

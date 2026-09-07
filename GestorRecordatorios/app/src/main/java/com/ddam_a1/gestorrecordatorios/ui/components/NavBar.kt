@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.ddam_a1.gestorrecordatorios.R
 import com.ddam_a1.gestorrecordatorios.ui.theme.GestorRecordatoriosTheme
@@ -239,13 +243,17 @@ fun RecordatoriosBottomBar(
     onDestino: (DestinoNav) -> Unit,
     onNuevo: () -> Unit,
     modifier: Modifier = Modifier,
-    colorFondoPantalla: Color = MaterialTheme.colorScheme.surfaceContainerHighest
+    colorFondoPantalla: Color = MaterialTheme.colorScheme.surfaceContainerHighest,
+    // El hueco de la barra del sistema. Por defecto se LEE del dispositivo;
+    // los previews le pasan un número a mano para simular cada modo.
+    insetInferior: Dp = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
 ) {
     Box(
         contentAlignment = Alignment.TopCenter,
         modifier = modifier
             .fillMaxWidth()
-            .height(BARRA_ALTO + FAB_TAM / 2)   // la barra más lo que sobresale el botón
+            // la barra + el hueco del sistema + lo que sobresale el botón
+            .height(BARRA_ALTO + insetInferior + FAB_TAM / 2)
     ) {
         // ---- La barra verde, pegada abajo ----
         Row(
@@ -254,18 +262,28 @@ fun RecordatoriosBottomBar(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(BARRA_ALTO)
+                .height(BARRA_ALTO + insetInferior)
                 .shadow(ELEVACION_BARRA)
                 .background(colorFondoRail())
-                .padding(horizontal = 24.dp)
+                // El verde se pinta ANTES del padding, así llega hasta el borde
+                // físico de la pantalla y solo el CONTENIDO sube. Si lo pusieras
+                // al revés, quedaría una franja del color del fondo abajo.
+                .padding(bottom = insetInferior)
+                .padding(horizontal = 16.dp)
         ) {
-            DestinoNav.entries.forEach { destino ->
-                ItemRail(
-                    icono = iconoDe(destino),
-                    descripcion = etiquetaDe(destino),
-                    seleccionado = destino == destinoActual,
-                    onClick = { onDestino(destino) }
-                )
+            // Cada icono va centrado en su mitad, con el hueco de la muesca
+            // en medio. Con `weight` todo se reparte solo: la barra funciona
+            // igual en un teléfono angosto que en uno ancho.
+            DestinoNav.entries.forEachIndexed { indice, destino ->
+                if (indice > 0) Spacer(Modifier.width(MUESCA_TAM))
+                Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                    ItemRail(
+                        icono = iconoDe(destino),
+                        descripcion = etiquetaDe(destino),
+                        seleccionado = destino == destinoActual,
+                        onClick = { onDestino(destino) }
+                    )
+                }
             }
         }
 
@@ -345,10 +363,18 @@ private fun RailPapeleraPreview() {
     }
 }
 
-@Preview(name = "Barra inferior", showBackground = true, backgroundColor = FONDO_APP, widthDp = 412)
+@Preview(name = "Barra · gestos (24dp)", showBackground = true, backgroundColor = FONDO_APP, widthDp = 412)
 @Composable
-private fun BottomBarPreview() {
+private fun BottomBarGestosPreview() {
     GestorRecordatoriosTheme {
-        RecordatoriosBottomBar(DestinoNav.BANDEJA, {}, {})
+        RecordatoriosBottomBar(DestinoNav.BANDEJA, {}, {}, insetInferior = 24.dp)
+    }
+}
+
+@Preview(name = "Barra · tres botones (48dp)", showBackground = true, backgroundColor = FONDO_APP, widthDp = 412)
+@Composable
+private fun BottomBarTresBotonesPreview() {
+    GestorRecordatoriosTheme {
+        RecordatoriosBottomBar(DestinoNav.PAPELERA, {}, {}, insetInferior = 48.dp)
     }
 }
