@@ -33,9 +33,9 @@ import com.ddam_a1.gestorrecordatorios.ui.theme.GestorRecordatoriosTheme
 // ============================================================
 //  MEDIDAS del rail abierto
 //
-//  En tu Figma la variante "Barra Lateral AbIerta / deskOpen" mide 444 de ancho.
-//  Aquí van 280, que es la proporción equivalente en un dispositivo real y deja
-//  sitio para el contenido. Súbelo si lo quieres más ancho.
+//  En Figma la variante "Barra Lateral AbIerta / deskOpen" mide 444 de ancho.
+//  Aquí son 280, que es la proporción equivalente en un dispositivo real y deja
+//  sitio para el contenido.
 //
 //  El alto y el radio de cada fila son los MISMOS del rail cerrado (72 y 18),
 //  importados de NavBar.kt: al abrir y cerrar el menú las piezas deben sentirse
@@ -109,10 +109,10 @@ fun EtiquetaNav(
 }
 
 /**
- * El rail lateral ABIERTO. Corresponde a tu variante "Barra Lateral AbIerta".
+ * El rail lateral ABIERTO. Corresponde a la variante "Barra Lateral AbIerta".
  *
  * Mismo orden que el rail cerrado: control arriba, destinos en medio, y la acción
- * de "nuevo" hasta abajo.
+ * de "nuevo recordatorio" hasta abajo.
  */
 @Composable
 fun RecordatoriosNavRailAbierto(
